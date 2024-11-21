@@ -22,10 +22,9 @@ return {
 let pokemons = pokemonRepository.getAll();
 
 pokemons.forEach((pokemon) => {
-    document.write(`<p> + pokemon.name + '| height:' + pokemon.height + </p>`);
+    document.write(`<p>${pokemon.name} | height: ${pokemon.height}</p>`);
 
-    if (pokemon.height >= 0.5) {
-        document.write(<p>'Wow, that's Big!'</p>);
+    if (pokemon.height >= 1) {
+        document.write('<p>Wow, that\'s big!</p>');
     }
 });
-
