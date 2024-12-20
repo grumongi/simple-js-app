@@ -17,23 +17,17 @@ let pokemonRepository = (function () {
   function addListItem(pokemon) {
     let pokemonListElement = document.querySelector('.pokemon-list');
     let listItem = document.createElement('li');
-    loadDetails (pokemon). then (function() {
     let button = document.createElement('button');
-    button.innerText = pokemon.name;
-    button.classList.add('button-class');
-    let image = document.createElement("img");
-    image.src = pokemon.imageUrl;
-    image.alt = `${pokemon.name} image`;
-    image.classList.add("pokemon-image");
 
-    button.appendChild(image);
+    listItem.classList.add('list-group-item');
+    button.innerText = pokemon.name;
+    button.classList.add('btn', 'btn-primary');
     button.addEventListener('click', function () {
-        showDetails(pokemon);
+      showDetails(pokemon);
     });
 
     listItem.appendChild(button);
     pokemonListElement.appendChild(listItem);
-});
   }
 
   function loadList() {
@@ -53,70 +47,36 @@ let pokemonRepository = (function () {
       });
   }
 
-  function loadDetails(item) {
-    let url = item.detailsUrl;
-    return fetch(url)
-      .then((response) => response.json())
-      .then((details) => {
-        console.log('Details fetched for:', item.name);
-        console.log('Sprites:', details.sprites);
-        item.imageUrl = details.sprites.front_default;
-        item.height = details.height;
-        item.types = details.types.map((typeInfo) => typeInfo.type.name);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+  async function loadDetails(pokemon) {
+    let url = pokemon.detailsUrl;
+    try {
+      const response = await fetch(url);
+      const details = await response.json();
+      pokemon.imageUrl = details.sprites.front_default;
+      pokemon.height = details.height;
+      pokemon.types = details.types.map((typeInfo) => typeInfo.type.name);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  function showModal(title, text, img) {
-    let modalContainer = document.querySelector('#modal-container');
-    modalContainer.innerHTML = '';
+  function showModal(pokemon) {
+    let modalTitle = document.querySelector('#pokemonModalLabel');
+    let modalBody = document.querySelector('.modal-body');
+    let pokemonImage = document.querySelector('#pokemonImage');
+    let pokemonHeight = document.querySelector('#pokemonHeight');
 
-    let modal = document.createElement('div');
-    modal.classList.add('modal');
-
-    let closeButtonElement = document.createElement('button');
-    closeButtonElement.classList.add('modal-close');
-    closeButtonElement.innerText = 'Close';
-    closeButtonElement.addEventListener('click', hideModal);
-
-    let pokemonName = document.createElement('h1');
-    pokemonName.innerText = title;
-
-    let pokemonHeight = document.createElement('p');
-    pokemonHeight.innerText = text;
-
-    let pokemonImage = document.createElement('img');
-    pokemonImage.setAttribute('src', img);
-    pokemonImage.style.width = '100%';
-
-    modal.appendChild(closeButtonElement);
-    modal.appendChild(pokemonName);
-    modal.appendChild(pokemonHeight);
-    modal.appendChild(pokemonImage);
-    modalContainer.appendChild(modal);
-
-    modalContainer.classList.add('is-visible');
-
-    modalContainer.addEventListener('click', (e) => {
-      if (e.target === modalContainer) {
-        hideModal();
-      }
-    });
-  }
-
-  function hideModal() {
-    let modalContainer = document.querySelector('#modal-container');
-    modalContainer.classList.remove('is-visible');
+    modalTitle.innerText = pokemon.name;
+    pokemonImage.setAttribute('src', pokemon.imageUrl);
+    pokemonImage.setAttribute('alt', `${pokemon.name} image`);
+    pokemonHeight.innerText = `Height: ${pokemon.height}`;
+    
+    $('#pokemonModal').modal('show');
   }
 
   function showDetails(pokemon) {
     loadDetails(pokemon).then(() => {
-     console.log  (pokemon.name);
-     console. log ('Image URL:', pokemon.imageUrl);
-     console. log ('Height:', pokemon.height);
-     alert(`Name: ${pokemon.name}\nHeight: ${pokemon.height}`);
+      showModal(pokemon);
     });
   }
 
@@ -125,7 +85,6 @@ let pokemonRepository = (function () {
     getAll: getAll,
     addListItem: addListItem,
     loadList: loadList,
-    loadDetails: loadDetails,
     showDetails: showDetails,
   };
 })();
